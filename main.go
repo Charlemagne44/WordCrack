@@ -40,14 +40,14 @@ func main() {
 	}
 
 	// load in the english dictionary json
-	jsonFile, err := os.Open("resources/10000.json")
+	jsonFile, err := os.Open("resources/dictionary.json")
 	if err != nil {
 		fmt.Printf("Open dict json: %v\n", err)
 	}
 	defer jsonFile.Close()
 
 	// unmarshal the dictionary into a list
-	var dictionary []string
+	var dictionary map[string]string
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
 		fmt.Printf("Read json: %v\n", err)
@@ -59,7 +59,7 @@ func main() {
 
 	// load the dictionary into a trie
 	trie := trie.InitTrie()
-	for _, word := range dictionary {
+	for word, _ := range dictionary {
 		// disallow hyphens
 		if strings.Contains(word, "-") {
 			continue
@@ -70,8 +70,10 @@ func main() {
 
 	// load in tiles
 	// game.LoadTestWords()
+	fmt.Println("Type game grid:")
 	game.LoadWords()
 
+	var allwords []string
 	// for each cell, explore each path appending valid words-loc as you find them via backtracing
 	for row := 0; row < 4; row++ {
 		for col := 0; col < 4; col++ {
@@ -79,9 +81,8 @@ func main() {
 			game.backtrack(row, col, *game.Trie.Root, "")
 
 			// sort them by size, largest first
-			sort.Slice(game.Valid_Words, func(i, j int) bool {
-				return len(game.Valid_Words[i]) < len(game.Valid_Words[j])
-			})
+			sortListBySize(game.Valid_Words)
+
 			// print the largest solutions first and display their path
 			fmt.Print("COORDS: ", row, col)
 			fmt.Println(game.Valid_Words)
@@ -89,17 +90,29 @@ func main() {
 			// append the highest scoring Non repeating word IF it is not already in the matrix
 			game.insertBestWord(row, col)
 
-			// flush the found words and visited  words
+			// flush the found words and visited words
 			for row := range game.Visited {
 				for col := range game.Visited {
 					game.Visited[row][col] = false
 				}
 			}
+			allwords = append(allwords, game.Valid_Words...)
 			game.Valid_Words = []string{}
 		}
 	}
 
+	// sortListBySize(allwords)
+	// fmt.Println("ALL BEST:")
+	// for _, element := range allwords {
+	// 	fmt.Println(element)
+	// }
 	// PrettyPrint(game.Best_Words)
+}
+
+func sortListBySize(list []string) {
+	sort.Slice(list, func(i, j int) bool {
+		return len(list[i]) < len(list[j])
+	})
 }
 
 func (g *Game) insertBestWord(row, col int) {
