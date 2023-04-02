@@ -16,7 +16,7 @@ type Game struct {
 	Tiles       [4][4]Tile
 	Valid_Words []string
 	Best_Words  [][]string
-	trie        trie.Trie
+	Trie        trie.Trie
 	Visited     [][]bool
 }
 
@@ -66,7 +66,7 @@ func main() {
 		}
 		trie.Insert(word)
 	}
-	game.trie = *trie
+	game.Trie = *trie
 
 	// load in tiles
 	game.LoadTestWords()
@@ -76,7 +76,7 @@ func main() {
 	for row := 0; row < 1; row++ {
 		for col := 0; col < 1; col++ {
 			// find all valid words from origin tile
-			game.backtrack(row, col, *game.trie.Root, "")
+			game.backtrack(row, col, *game.Trie.Root, "")
 
 			// sort them by size, largest first
 			sort.Slice(game.Valid_Words, func(i, j int) bool {
@@ -104,38 +104,38 @@ func main() {
 	PrettyPrint(game.Best_Words)
 }
 
-func (g *Game) backtrack(x, y int, trie trie.Node, word string) {
-	fmt.Println("currently at x,  y:  ", x, y)
-	tileChar := string(g.Tiles[x][y].Value)
+func (g *Game) backtrack(row, col int, trie trie.Node, word string) {
+	fmt.Println("currently at row,  col:  ", row, col)
+	tileChar := string(g.Tiles[row][col].Value)
 	fmt.Println("tile char val: ", tileChar)
 	_, exists := trie.Chars[tileChar]
 	if !exists {
 		fmt.Println("char: " + tileChar + " doesn't exist for word: " + word)
 		return
 	}
-	word = word + g.Tiles[x][y].Value
+	word = word + g.Tiles[row][col].Value
 	fmt.Println("Word constructed:", word)
 	trie = *trie.Chars[tileChar]
-	g.Visited[x][y] = true
-	if g.trie.Search(word) {
+	g.Visited[row][col] = true
+	if g.Trie.Search(word) {
 		if !slices.Contains(g.Valid_Words, word) && len(word) > 2 {
 			fmt.Println("Is word:  ", word)
 			g.Valid_Words = append(g.Valid_Words, word)
 		}
 	}
-	dy := []int{-1, -1, -1, 0, 0, 1, 1, 1}
-	dx := []int{-1, 0, 1, -1, 1, -1, 0, 1}
+	drow := []int{-1, -1, -1, 0, 0, 1, 1, 1}
+	dcol := []int{-1, 0, 1, -1, 1, -1, 0, 1}
 	for i := 0; i < 8; i++ {
-		nextx := x + dx[i]
-		nexty := y + dy[i]
-		if nextx < 4 && nextx >= 0 && nexty < 4 && nexty >= 0 {
-			if !g.Visited[nexty][nextx] {
-				fmt.Println("Going to: ", nextx, nexty)
-				g.backtrack(nextx, nexty, trie, word)
+		nextrow := row + drow[i]
+		nextcol := col + dcol[i]
+		if nextrow < 4 && nextrow >= 0 && nextcol < 4 && nextcol >= 0 {
+			if !g.Visited[nextrow][nextcol] {
+				fmt.Println("Going to row, col: ", nextrow, nextcol)
+				g.backtrack(nextrow, nextcol, trie, word)
 			}
 		}
 	}
-	g.Visited[x][y] = false
+	g.Visited[row][col] = false
 	trie = *trie.Parent
 }
 
