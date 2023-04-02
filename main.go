@@ -73,8 +73,8 @@ func main() {
 	// game.LoadWords()
 
 	// for each cell, explore each path appending valid words-loc as you find them with the trie
-	for row := 0; row < 1; row++ {
-		for col := 0; col < 1; col++ {
+	for row := 0; row < 4; row++ {
+		for col := 0; col < 4; col++ {
 			// find all valid words from origin tile
 			game.backtrack(row, col, *game.Trie.Root, "")
 
