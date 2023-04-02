@@ -86,10 +86,8 @@ func main() {
 			fmt.Print("COORDS: ", row, col)
 			fmt.Println(game.Valid_Words)
 
-			// append the highest scoring word to the best word grid
-			if len(game.Valid_Words) > 1 {
-				game.Best_Words[row][col] = game.Valid_Words[len(game.Valid_Words)-1]
-			}
+			// append the highest scoring Non repeating word IF it is not already in the matrix
+			game.insertBestWord(row, col)
 
 			// flush the found words and visited  words
 			for row := range game.Visited {
@@ -104,22 +102,42 @@ func main() {
 	PrettyPrint(game.Best_Words)
 }
 
+func (g *Game) insertBestWord(row, col int) {
+	for i := len(g.Valid_Words) - 1; i >= 0; i-- {
+		// get best word
+		best_word := g.Valid_Words[i]
+		// check if it already exist
+		for _, words := range g.Best_Words {
+			for _, word := range words {
+				if best_word == word {
+					// if it does, continue search
+					continue
+				} else {
+					// else, add to matrix of best words and continue
+					g.Best_Words[row][col] = best_word
+					return
+				}
+			}
+		}
+	}
+}
+
 func (g *Game) backtrack(row, col int, trie trie.Node, word string) {
-	fmt.Println("currently at row,  col:  ", row, col)
+	// fmt.Println("currently at row,  col:  ", row, col)
 	tileChar := string(g.Tiles[row][col].Value)
-	fmt.Println("tile char val: ", tileChar)
+	// fmt.Println("tile char val: ", tileChar)
 	_, exists := trie.Chars[tileChar]
 	if !exists {
-		fmt.Println("char: " + tileChar + " doesn't exist for word: " + word)
+		// fmt.Println("char: " + tileChar + " doesn't exist for word: " + word)
 		return
 	}
 	word = word + g.Tiles[row][col].Value
-	fmt.Println("Word constructed:", word)
+	// fmt.Println("Word constructed:", word)
 	trie = *trie.Chars[tileChar]
 	g.Visited[row][col] = true
 	if g.Trie.Search(word) {
 		if !slices.Contains(g.Valid_Words, word) && len(word) > 2 {
-			fmt.Println("Is word:  ", word)
+			// fmt.Println("Is word:  ", word)
 			g.Valid_Words = append(g.Valid_Words, word)
 		}
 	}
@@ -130,7 +148,7 @@ func (g *Game) backtrack(row, col int, trie trie.Node, word string) {
 		nextcol := col + dcol[i]
 		if nextrow < 4 && nextrow >= 0 && nextcol < 4 && nextcol >= 0 {
 			if !g.Visited[nextrow][nextcol] {
-				fmt.Println("Going to row, col: ", nextrow, nextcol)
+				// fmt.Println("Going to row, col: ", nextrow, nextcol)
 				g.backtrack(nextrow, nextcol, trie, word)
 			}
 		}
