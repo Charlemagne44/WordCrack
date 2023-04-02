@@ -17,7 +17,7 @@ type Game struct {
 	Valid_Words []string
 	Best_Words  [][]string
 	Trie        trie.Trie
-	Visited     [][]bool
+	Visited     [4][4]bool
 }
 
 type Tile struct {
@@ -33,10 +33,10 @@ type KeyVal struct {
 func main() {
 	// init game and board
 	game := Game{}
-	game.Visited = make([][]bool, 4)
+	// game.Visited = make([][]bool, 4)
 	game.Best_Words = make([][]string, 4)
 	for i := 0; i < 4; i++ {
-		game.Visited[i] = make([]bool, 4)
+		// game.Visited[i] = make([]bool, 4)
 		game.Best_Words[i] = make([]string, 4)
 	}
 
