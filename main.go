@@ -34,10 +34,8 @@ type KeyVal struct {
 func main() {
 	// init game and board
 	game := Game{}
-	// game.Visited = make([][]bool, 4)
 	game.Best_Words = make([][]string, 4)
 	for i := 0; i < 4; i++ {
-		// game.Visited[i] = make([]bool, 4)
 		game.Best_Words[i] = make([]string, 4)
 	}
 
@@ -48,6 +46,7 @@ func main() {
 	}
 	defer jsonFile.Close()
 
+	// unmarshal the dictionary into a list
 	var dictionary []string
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
@@ -73,7 +72,7 @@ func main() {
 	// game.LoadTestWords()
 	game.LoadWords()
 
-	// for each cell, explore each path appending valid words-loc as you find them with the trie
+	// for each cell, explore each path appending valid words-loc as you find them via backtracing
 	for row := 0; row < 4; row++ {
 		for col := 0; col < 4; col++ {
 			// find all valid words from origin tile
