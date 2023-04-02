@@ -35,14 +35,14 @@ func main() {
 	}
 
 	// load in the english dictionary json
-	jsonFile, err := os.Open("resources/dictionary.json")
+	jsonFile, err := os.Open("resources/scrabble.json")
 	if err != nil {
 		fmt.Printf("Open dict json: %v\n", err)
 	}
 	defer jsonFile.Close()
 
 	// unmarshal the dictionary into a list
-	var dictionary map[string]string
+	var dictionary []string
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
 		fmt.Printf("Read json: %v\n", err)
@@ -54,12 +54,12 @@ func main() {
 
 	// load the dictionary into a trie
 	trie := trie.InitTrie()
-	for word, _ := range dictionary {
+	for _, word := range dictionary {
 		// disallow hyphens
 		if strings.Contains(word, "-") {
 			continue
 		}
-		trie.Insert(word)
+		trie.Insert(strings.ToLower(word))
 	}
 	game.Trie = *trie
 
