@@ -9,6 +9,7 @@ import (
 	"strings"
 	"wordcrack/trie"
 
+	"github.com/eiannone/keyboard"
 	"golang.org/x/exp/slices"
 )
 
@@ -69,8 +70,8 @@ func main() {
 	game.Trie = *trie
 
 	// load in tiles
-	game.LoadTestWords()
-	// game.LoadWords()
+	// game.LoadTestWords()
+	game.LoadWords()
 
 	// for each cell, explore each path appending valid words-loc as you find them with the trie
 	for row := 0; row < 4; row++ {
@@ -99,7 +100,7 @@ func main() {
 		}
 	}
 
-	PrettyPrint(game.Best_Words)
+	// PrettyPrint(game.Best_Words)
 }
 
 func (g *Game) insertBestWord(row, col int) {
@@ -175,9 +176,12 @@ func (g *Game) LoadWords() {
 	// laod in the tile character values
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
-			var char string
-			fmt.Scanln(&char)
-			g.Tiles[i][j].Value = char
+			char, _, err := keyboard.GetSingleKey()
+			if err != nil {
+				panic(err)
+			}
+			fmt.Printf("You pressed: %q\r\n", char)
+			g.Tiles[i][j].Value = string(char)
 		}
 	}
 }
