@@ -104,20 +104,18 @@ func main() {
 
 func (g *Game) insertBestWord(row, col int) {
 	for i := len(g.Valid_Words) - 1; i >= 0; i-- {
-		// get best word
-		best_word := g.Valid_Words[i]
-		// check if it already exist
+		curr_best := g.Valid_Words[i]
+		best := true
 		for _, words := range g.Best_Words {
-			for _, word := range words {
-				if best_word == word {
-					// if it does, continue search
-					continue
-				} else {
-					// else, add to matrix of best words and continue
-					g.Best_Words[row][col] = best_word
-					return
-				}
+			if slices.Contains(words, curr_best) {
+				best = false
 			}
+		}
+		if best {
+			g.Best_Words[row][col] = curr_best
+			return
+		} else {
+			continue
 		}
 	}
 }
