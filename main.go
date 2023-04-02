@@ -26,11 +26,6 @@ type Tile struct {
 	Visited bool
 }
 
-type KeyVal struct {
-	Key   string
-	Value []Tile
-}
-
 func main() {
 	// init game and board
 	game := Game{}
@@ -101,8 +96,9 @@ func main() {
 		}
 	}
 
+	// optional printout of all words, and pretty print
 	// sortListBySize(allwords)
-	// fmt.Println("ALL BEST:")
+	// fmt.Println("ALL WORDS ORDERED:")
 	// for _, element := range allwords {
 	// 	fmt.Println(element)
 	// }
