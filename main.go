@@ -1,9 +1,9 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"sort"
 	"strings"
@@ -17,6 +17,9 @@ import (
 const TOPWORDS = 5
 const GAMESIZE = 4
 const TABSPACING = 4
+
+//go:embed resources/scrabble.json
+var f embed.FS
 
 type Game struct {
 	Tiles       [GAMESIZE][GAMESIZE]Tile
@@ -40,19 +43,11 @@ func main() {
 	}
 
 	// load in the english dictionary json
-	jsonFile, err := os.Open("resources/scrabble.json")
-	if err != nil {
-		fmt.Printf("Open dict json: %v\n", err)
-	}
-	defer jsonFile.Close()
+	data, _ := f.ReadFile("resources/scrabble.json")
 
 	// unmarshal the dictionary into a list
 	var dictionary []string
-	byteValue, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		fmt.Printf("Read json: %v\n", err)
-	}
-	err = json.Unmarshal(byteValue, &dictionary)
+	err := json.Unmarshal(data, &dictionary)
 	if err != nil {
 		fmt.Printf("Unmarshal %v\n", err)
 	}
