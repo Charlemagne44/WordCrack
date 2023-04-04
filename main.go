@@ -55,7 +55,6 @@ func main() {
 	// load the dictionary into a trie
 	trie := trie.InitTrie()
 	for _, word := range dictionary {
-		// disallow hyphens
 		if strings.Contains(word, "-") {
 			continue
 		}
@@ -64,11 +63,9 @@ func main() {
 	game.Trie = *trie
 
 	// load in tiles
-	// game.LoadTestWords()
 	fmt.Println("Type game grid:")
 	game.LoadWords()
 
-	var allwords []string
 	// for each cell, explore each path appending valid words-loc as you find them via backtracing
 	for row := 0; row < 4; row++ {
 		for col := 0; col < 4; col++ {
@@ -91,18 +88,9 @@ func main() {
 					game.Visited[row][col] = false
 				}
 			}
-			allwords = append(allwords, game.Valid_Words...)
 			game.Valid_Words = []string{}
 		}
 	}
-
-	// optional printout of all words, and pretty print
-	// sortListBySize(allwords)
-	// fmt.Println("ALL WORDS ORDERED:")
-	// for _, element := range allwords {
-	// 	fmt.Println(element)
-	// }
-	// PrettyPrint(game.Best_Words)
 }
 
 func sortListBySize(list []string) {
@@ -130,36 +118,40 @@ func (g *Game) insertBestWord(row, col int) {
 }
 
 func (g *Game) backtrack(row, col int, trie trie.Node, word string) {
-	// fmt.Println("currently at row,  col:  ", row, col)
+	// get the current char from the tile at row, col
 	tileChar := string(g.Tiles[row][col].Value)
-	// fmt.Println("tile char val: ", tileChar)
+	// check if char appears at current node of trie
 	_, exists := trie.Chars[tileChar]
 	if !exists {
-		// fmt.Println("char: " + tileChar + " doesn't exist for word: " + word)
+		// not a path to a valid word, return
 		return
 	}
+	// append to current recursively constructed word and append char from current tile
 	word = word + g.Tiles[row][col].Value
-	// fmt.Println("Word constructed:", word)
+	// set trie node to the existing chile not at that specific character
 	trie = *trie.Chars[tileChar]
+	// mark the visited matrix true to avoid backtracking repeats
 	g.Visited[row][col] = true
+	// check for the existence of the constructed word within the scrabble dict trie
 	if g.Trie.Search(word) {
 		if !slices.Contains(g.Valid_Words, word) && len(word) > 2 {
-			// fmt.Println("Is word:  ", word)
 			g.Valid_Words = append(g.Valid_Words, word)
 		}
 	}
+	// create delta arrays to explore surrounding cells
 	drow := []int{-1, -1, -1, 0, 0, 1, 1, 1}
 	dcol := []int{-1, 0, 1, -1, 1, -1, 0, 1}
+	// for every adjacent cell within the matrix and not visited, recurse this backtrack function
 	for i := 0; i < 8; i++ {
 		nextrow := row + drow[i]
 		nextcol := col + dcol[i]
 		if nextrow < 4 && nextrow >= 0 && nextcol < 4 && nextcol >= 0 {
 			if !g.Visited[nextrow][nextcol] {
-				// fmt.Println("Going to row, col: ", nextrow, nextcol)
 				g.backtrack(nextrow, nextcol, trie, word)
 			}
 		}
 	}
+	// cleanup the visited array at the current cell post tracking and go up a level in Trie node
 	g.Visited[row][col] = false
 	trie = *trie.Parent
 }
