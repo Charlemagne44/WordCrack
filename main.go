@@ -7,18 +7,23 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"text/tabwriter"
 	"wordcrack/trie"
 
 	"github.com/eiannone/keyboard"
 	"golang.org/x/exp/slices"
 )
 
+const TOPWORDS = 5
+const GAMESIZE = 4
+const TABSPACING = 4
+
 type Game struct {
-	Tiles       [4][4]Tile
+	Tiles       [GAMESIZE][GAMESIZE]Tile
 	Valid_Words []string
 	Best_Words  [][]string
 	Trie        trie.Trie
-	Visited     [4][4]bool
+	Visited     [GAMESIZE][GAMESIZE]bool
 }
 
 type Tile struct {
@@ -29,9 +34,9 @@ type Tile struct {
 func main() {
 	// init game and board
 	game := Game{}
-	game.Best_Words = make([][]string, 4)
-	for i := 0; i < 4; i++ {
-		game.Best_Words[i] = make([]string, 4)
+	game.Best_Words = make([][]string, GAMESIZE)
+	for i := 0; i < GAMESIZE; i++ {
+		game.Best_Words[i] = make([]string, GAMESIZE)
 	}
 
 	// load in the english dictionary json
@@ -67,8 +72,8 @@ func main() {
 	game.LoadWords()
 
 	// for each cell, explore each path appending valid words-loc as you find them via backtracing
-	for row := 0; row < 4; row++ {
-		for col := 0; col < 4; col++ {
+	for row := 0; row < GAMESIZE; row++ {
+		for col := 0; col < GAMESIZE; col++ {
 			// find all valid words from origin tile
 			game.backtrack(row, col, *game.Trie.Root, "")
 
@@ -93,12 +98,12 @@ func main() {
 }
 
 func (g *Game) printTopOptions(row, col int) {
-	fmt.Print("COORDS: ", row, col)
-	if len(g.Valid_Words) >= 5 {
-		fmt.Println(g.Valid_Words[len(g.Valid_Words)-5 : len(g.Valid_Words)-1])
+	if len(g.Valid_Words) > TOPWORDS {
+		PrettyPrint(g.Valid_Words[len(g.Valid_Words)-TOPWORDS-1:len(g.Valid_Words)-1], row, col)
 	} else {
-		fmt.Println(g.Valid_Words)
+		PrettyPrint(g.Valid_Words, row, col)
 	}
+	fmt.Print("\n")
 }
 
 func sortListBySize(list []string) {
@@ -153,7 +158,7 @@ func (g *Game) backtrack(row, col int, trie trie.Node, word string) {
 	for i := 0; i < 8; i++ {
 		nextrow := row + drow[i]
 		nextcol := col + dcol[i]
-		if nextrow < 4 && nextrow >= 0 && nextcol < 4 && nextcol >= 0 {
+		if nextrow < GAMESIZE && nextrow >= 0 && nextcol < GAMESIZE && nextcol >= 0 {
 			if !g.Visited[nextrow][nextcol] {
 				g.backtrack(nextrow, nextcol, trie, word)
 			}
@@ -164,15 +169,19 @@ func (g *Game) backtrack(row, col int, trie trie.Node, word string) {
 	trie = *trie.Parent
 }
 
-func PrettyPrint(i interface{}) string {
-	s, _ := json.MarshalIndent(i, "", "\t")
-	fmt.Println(string(s))
-	return string(s)
+func PrettyPrint(row []string, i, j int) {
+	writer := tabwriter.NewWriter(os.Stdout, 0, TABSPACING, 1, '\t', 0)
+	defer writer.Flush()
+	fmt.Fprintf(writer, "Coords: %d %d  -  ", i, j)
+	for _, element := range row {
+		fmt.Fprintf(writer, "%s\t", element)
+	}
+	fmt.Printf("\n")
 }
 
 func (g *Game) LoadTestWords() {
 	// load in a predefined tile grid for testing
-	g.Tiles = [4][4]Tile{
+	g.Tiles = [GAMESIZE][GAMESIZE]Tile{
 		{Tile{Value: "e", Visited: false}, Tile{Value: "a", Visited: false}, Tile{Value: "t", Visited: false}, Tile{Value: "c", Visited: false}},
 		{Tile{Value: "e", Visited: false}, Tile{Value: "s", Visited: false}, Tile{Value: "i", Visited: false}, Tile{Value: "a", Visited: false}},
 		{Tile{Value: "m", Visited: false}, Tile{Value: "h", Visited: false}, Tile{Value: "p", Visited: false}, Tile{Value: "s", Visited: false}},
@@ -182,8 +191,8 @@ func (g *Game) LoadTestWords() {
 
 func (g *Game) LoadWords() {
 	// laod in the tile character values
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
+	for i := 0; i < GAMESIZE; i++ {
+		for j := 0; j < GAMESIZE; j++ {
 			char, _, err := keyboard.GetSingleKey()
 			if err != nil {
 				panic(err)
