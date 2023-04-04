@@ -75,9 +75,8 @@ func main() {
 			// sort them by size, largest first
 			sortListBySize(game.Valid_Words)
 
-			// print the largest solutions first and display their path
-			fmt.Print("COORDS: ", row, col)
-			fmt.Println(game.Valid_Words)
+			// print the top 5 solutions first and display their path
+			game.printTopOptions(row, col)
 
 			// append the highest scoring Non repeating word IF it is not already in the matrix
 			game.insertBestWord(row, col)
@@ -90,6 +89,15 @@ func main() {
 			}
 			game.Valid_Words = []string{}
 		}
+	}
+}
+
+func (g *Game) printTopOptions(row, col int) {
+	fmt.Print("COORDS: ", row, col)
+	if len(g.Valid_Words) >= 5 {
+		fmt.Println(g.Valid_Words[len(g.Valid_Words)-5 : len(g.Valid_Words)-1])
+	} else {
+		fmt.Println(g.Valid_Words)
 	}
 }
 
