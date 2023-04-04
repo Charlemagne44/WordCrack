@@ -90,6 +90,10 @@ func main() {
 			game.Valid_Words = []string{}
 		}
 	}
+
+	// wait for the user to close out the program
+	fmt.Println("Press Enter to Exit...")
+	fmt.Scanln()
 }
 
 func (g *Game) printTopOptions(row, col int) {
