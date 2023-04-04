@@ -5,6 +5,9 @@ This is a quick, simple (and messy) tool to find letters contained in the webste
 
 The user simply enters all 16 characters in top to bottom succession,  a  rough outline of each of the best paths is then printed out to the user for  each starting character. Utilizes bruteforce backtracking and references a scrabble dictionary that was slotted  into a home brewed  Trie data structure for  quicker access. Some of the words generated are English, but aren't recognized by Word Hunt. You may also configure a different json dictionary if there is a better alternative.
 
+## Sample
+
+![Sample output](resources/output.png)
 
 ## Authors
 
